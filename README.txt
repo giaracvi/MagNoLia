@@ -8,7 +8,7 @@ Regarding the files that are present in this branch, they are and do as follows.
 
 	"Overlapping.py" contains the procedures of the ChAT and DAPI overlapping described on the article;
 
-	"main.py" the file that runs the experiment, is this file which should be executed;
+	"main.py" the file that runs the experiment, it is this file which should be executed;
 
 	"README.txt" this file;
 
