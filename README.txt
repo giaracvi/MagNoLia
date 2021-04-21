@@ -1,5 +1,5 @@
-These are the source codes from the Motor Neuron MagNoLia project, published at [], named [].
-The article of the refered project can be founde here [].
+These are the source codes from the Motor Neuron MagNoLia project, published at MDPI Applied Sciences (ISSN 2076-3417; CODEN: ASPCC7), named Unsupervised Cell Segmentation and Labelling in Neural Tissue Images.
+The article of the refered project can be founde here, as the file "Iglesias-Rey21_-_Unsupervised Cell Segmentation and Labelling in Neural Tissue Images.pdf".
 
 To execute the experiment, run the file "main.py".
 To change parameters for the experiment, use the file "infoMaker.py".
