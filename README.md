@@ -14,7 +14,7 @@ Regarding the files that are present in this branch, they are and do as follows.
 
 *	**"main.py"** the file that runs the experiment, it is this file which should be executed;
 
-*	**"README.md" this file;
+*	**"README.md"** this file;
 
 *	**"LICENSE-2.0.txt"** the details of the APACHE 2.0 license in which this project is release with;
 
