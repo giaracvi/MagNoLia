@@ -25,11 +25,11 @@ TONE_PURE_BLACK = 0;
 def create_a_mask_from_threshold(img, threshold, tone_below_thresh, tone_above_thresh):
 
     time_ini = time.time()
-    nrows = img.shape[0];
-    ncols = img.shape[1];
-    ndims = 1;
+    nrows = img.shape[0]
+    ncols = img.shape[1]
+    ndims = 1
     
-    output_img = img;
+    output_img = img
     
     #Single component image
     if(ndims == 1):
@@ -61,8 +61,8 @@ def create_a_mask_from_threshold(img, threshold, tone_below_thresh, tone_above_t
 #--------------------------------------------------------------------------------------
 #internal function
 def aux_remove_area(img, labels_areas, area_size_min):
-    ncols = img.shape[0];
-    nrows = img.shape[1];
+    ncols = img.shape[1]
+    nrows = img.shape[0]
     
     result = img;
     for i in range(0, nrows, 1):
@@ -127,9 +127,8 @@ def count_specific_label_on_image(img, label_to_count):
     time_ini = time.time()
     quantity_label = 0;
     
-    ncols = img.shape[0];
-    nrows = img.shape[1];
-    
+    ncols = img.shape[1]
+    nrows = img.shape[0]
     
     for i in range(0, nrows, 1):
         for j in range(0, ncols, 1):
@@ -154,8 +153,8 @@ def count_specific_value_on_matrix(image, label_to_count):
 #output, the areas of each label present on the img
 def count_all_labels_areas_on_an_image(img, num_labels):
     time_ini = time.time()
-    ncols = img.shape[0];
-    nrows = img.shape[1];
+    ncols = img.shape[1]
+    nrows = img.shape[0]
     
     output_areas = numpy.zeros((num_labels+1));
     for i in range(0, nrows, 1):
@@ -175,8 +174,8 @@ def count_all_labels_areas_on_an_image(img, num_labels):
 #Output: the input image with the Input 1 appearances replaced by Input 2
 def change_specific_label_on_image(img, label_to_change, value_to_change):
     time_ini = time.time()
-    ncols = img.shape[0];
-    nrows = img.shape[1];
+    ncols = img.shape[1]
+    nrows = img.shape[0]
     
     result = img;
     
@@ -219,8 +218,8 @@ def count_intersections_of_two_values_on_matrices(img1, img2, label1, label2):
 #Input 1 (img1): int8 or uint8 2D matrix, first image or matrix
 def create_a_mask_for_specific_tone(img, tone):
     time_ini = time.time()
-    ncols = img.shape[0];
-    nrows = img.shape[1];
+    ncols = img.shape[1]
+    nrows = img.shape[0]
  
     result = img;
     result = result.astype(numpy.uint8)
@@ -249,8 +248,8 @@ def get_mean_intensity_of_label_area(img, labeled_img, label_to_consider):
     num_pixels = 0;
     sum_of_values = 0;
     
-    ncols = img.shape[0];
-    nrows = img.shape[1];
+    ncols = img.shape[1]
+    nrows = img.shape[0]
     
     for i in range(0, nrows, 1):
         for j in range(0, ncols, 1):
@@ -541,8 +540,8 @@ def rosin_threshold_v1(histogram_to_process):
 
 #--------------------------------------------------------------------------------------
 def use_labels_to_change_mask_intensity(img, labels, label_to_change, new_intensity):
-    nrows = labels.shape[1]
-    ncols = labels.shape[0]
+    nrows = labels.shape[0]
+    ncols = labels.shape[1]
     mask_output = img;
     mask_output = mask_output.astype(numpy.uint8)
     
