@@ -69,8 +69,8 @@ def Overlapping(exp):
         img_DAPI = current_DAPI_image
         img_DAPI = (255 - img_DAPI)
         img_DAPI = img_DAPI.astype(numpy.uint8)
-        num_rows = img_DAPI.shape[1]
-        num_cols = img_DAPI.shape[0]
+        num_rows = img_DAPI.shape[0]
+        num_cols = img_DAPI.shape[1]
         
         #ChAT Processed image
         current_ChAT_image = cv2.imread((path_ChAT_out + "/" + current_image_name), cv2.IMREAD_GRAYSCALE)
