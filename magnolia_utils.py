@@ -8,10 +8,9 @@ pure_white = 255
 #---------------------------------------------------------------------- 
 def separate_cytoplasm_from_nuclei_for_only_one_body(cyto_output, joint_logical_only_one_body_cytoplasm_output, nuclei_only_one_body, out_cyto_band):
     time_ini = time.time()
-    ncols = cyto_output.shape[0];
-    nrows = cyto_output.shape[1];
+    ncols = cyto_output.shape[1]
+    nrows = cyto_output.shape[0]
     
-    #[nrows, ncols, ~] = size(cyto_output);
     for i in range(nrows):
         for j in range(ncols):
             if(nuclei_only_one_body[i, j] == pure_white):
@@ -31,10 +30,9 @@ def separate_cytoplasm_from_nuclei_for_only_one_body(cyto_output, joint_logical_
 
 def add_cytoplasm_from_only_one_body_nuclei(cyto_output, nuclei, out_nucleus_band):
     time_ini = time.time()
-    ncols = cyto_output.shape[0]
-    nrows = cyto_output.shape[1]
+    ncols = cyto_output.shape[1]
+    nrows = cyto_output.shape[0]
     
-    #[nrows, ncols, ~] = size(cyto_ouput);
     for i in range(nrows):
         for j in range(ncols):
             if((nuclei[i, j, 0] == out_nucleus_band[2]) and (nuclei[i, j, 1] == out_nucleus_band[1]) and (nuclei[i, j, 2] == out_nucleus_band[0])):
@@ -50,8 +48,8 @@ def add_cytoplasm_from_only_one_body_nuclei(cyto_output, nuclei, out_nucleus_ban
 
 def add_cytoplasm_from_only_one_body(cyto_output, cyto_only_one_body, out_cyto_band):
     time_ini = time.time()
-    ncols = cyto_output.shape[0]
-    nrows = cyto_output.shape[1]
+    ncols = cyto_output.shape[1]
+    nrows = cyto_output.shape[0]
     
     for i in range(nrows):
         for j in range(ncols):
@@ -68,9 +66,9 @@ def add_cytoplasm_from_only_one_body(cyto_output, cyto_only_one_body, out_cyto_b
 
 def add_nuclei_from_only_one_body(nuclei_output, nuclei_only_one_body, out_nucleus_band):
     time_ini = time.time()
-    ncols = nuclei_output.shape[0]
-    nrows = nuclei_output.shape[1]
-    #[nrows, ncols, ~] = size(nulcei_ouput);
+    ncols = nuclei_output.shape[1]
+    nrows = nuclei_output.shape[0]
+    
     for i in range(nrows):
         for j in range(ncols):
             if(nuclei_only_one_body[i, j] == pure_white):
@@ -85,9 +83,8 @@ def add_nuclei_from_only_one_body(nuclei_output, nuclei_only_one_body, out_nucle
 
 def img_nuclei_and_inclusions_creation(DAPI_img, tone_nu, tone_inc, out_nucleus_band, out_inclusion_band):
     time_ini = time.time()
-    ncols = DAPI_img.shape[0]
-    nrows = DAPI_img.shape[1]
-    #[nrows, ncols, ~] = size(DAPI_img);
+    ncols = DAPI_img.shape[1]
+    nrows = DAPI_img.shape[0]
     
     nuclei = numpy.zeros((nrows, ncols, 3), dtype=numpy.uint8);
     inclusions = numpy.zeros((nrows, ncols, 3), dtype=numpy.uint8)
@@ -121,8 +118,8 @@ def img_nuclei_and_inclusions_creation(DAPI_img, tone_nu, tone_inc, out_nucleus_
 
 def img_join_cyto_nu_and_inc(cytoplasm, nuclei, inclusions, out_nucleus_band, out_inclusion_band):
     time_ini = time.time()
-    ncols = cytoplasm.shape[0]
-    nrows = cytoplasm.shape[1]
+    ncols = cytoplasm.shape[1]
+    nrows = cytoplasm.shape[0]
     
     #[nrows, ncols, ~] = size(cytoplasm);
     for i in range(nrows):
@@ -145,9 +142,8 @@ def img_join_cyto_nu_and_inc(cytoplasm, nuclei, inclusions, out_nucleus_band, ou
 
 def img_cytoplasm_refinement(cytoplasm, inclusions, nuclei, out_nucleus_band, out_inclusion_band):
     time_ini = time.time()
-    ncols = cytoplasm.shape[0]
-    nrows = cytoplasm.shape[1]
-    #[nrows, ncols, ~] = size(cytoplasm);
+    ncols = cytoplasm.shape[1]
+    nrows = cytoplasm.shape[0]
     
     for i in range(nrows):
         for j in range(ncols):
@@ -170,9 +166,8 @@ def img_cytoplasm_refinement(cytoplasm, inclusions, nuclei, out_nucleus_band, ou
 
 def img_cytoplasm_creation(img_orig, tone_bg, out_cyto_band):
     time_ini = time.time()
-    ncols = img_orig.shape[0]
-    nrows = img_orig.shape[1]
-    #[nrows, ncols, ~] = size(img_orig);
+    ncols = img_orig.shape[1]
+    nrows = img_orig.shape[0]
     
     img_out = img_orig;
     
@@ -193,12 +188,10 @@ def img_cytoplasm_creation(img_orig, tone_bg, out_cyto_band):
 
 def imjoin_two_bodies_with_one_body_3d(img1, img2, tone):
     time_ini = time.time()
-    ncols = img1.shape[0]
-    nrows = img1.shape[1]
+    ncols = img1.shape[1]
+    nrows = img1.shape[0]
     
-    #[nrows, ncols, ~] = size(img1);
     result = numpy.zeros((nrows, ncols, 3), dtype=numpy.uint8);
-    
     
     for i in range(nrows):
         for j in range(ncols):
@@ -222,11 +215,9 @@ def imjoin_two_bodies_with_one_body_3d(img1, img2, tone):
 
 def imjoin_two_bodies_with_one_body(img1, img2, tone):
     time_ini = time.time()
-    ncols = img1.shape[0]
-    nrows = img1.shape[1]
+    ncols = img1.shape[1]
+    nrows = img1.shape[0]
 
-    
-    #[nrows, ncols, ~] = size(img1);
     result = numpy.zeros((nrows, ncols), dtype=numpy.uint8);
     
     for i in range(nrows):
@@ -245,8 +236,8 @@ def imjoin_two_bodies_with_one_body(img1, img2, tone):
 
 def cyto_logical_add_one_body(cyto, logical_mask, out_cyto_band):
     time_ini = time.time()
-    ncols = cyto.shape[0]
-    nrows = cyto.shape[1]
+    ncols = cyto.shape[1]
+    nrows = cyto.shape[0]
     
     for i in range(0, nrows, 1):
         for j in range(0, ncols, 1):
