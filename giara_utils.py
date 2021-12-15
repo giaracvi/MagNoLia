@@ -1,7 +1,7 @@
-import time;
-import cv2;
-import numpy;
-import PIL;
+import time
+import cv2
+import numpy as np
+import PIL
 import sys as sys
 import math as math
 
@@ -29,18 +29,15 @@ def create_a_mask_from_threshold(img, threshold, tone_below_thresh, tone_above_t
     ncols = img.shape[1]
     ndims = 1
     
-    output_img = img
+    output_img = img.copy()
     
     #Single component image
     if(ndims == 1):
-        for i in range(0, nrows, 1):
-            for j in range(0, ncols, 1):
-                if (img[i][j] >= threshold):
-                    output_img[i][j] = tone_above_thresh;
-                else:
-                    output_img[i][j] = tone_below_thresh;
+        output_img[output_img >= threshold] = tone_above_thresh
+        output_img[output_img < threshold] = tone_below_thresh
                     
-    #RGB image (Grayscale nonetheless)                
+    #RGB image
+    #Note: has to be vectorized    
     elif (ndims == 3):
         for i in range(0, nrows, 1):
             for j in range(0, ncols, 1):
@@ -53,42 +50,38 @@ def create_a_mask_from_threshold(img, threshold, tone_below_thresh, tone_above_t
                     output_img[i][j][1] = tone_below_thresh;
                     output_img[i][j][2] = tone_below_thresh;
                     
-    str_out = "(Giara Utils) create_a_mask_from_threshold completed (Time Taken: %.2fs)" % (time.time() - time_ini)
-    print(str_out)
+    #str_out = "(Giara Utils) create_a_mask_from_threshold completed (Time Taken: %.2fs)" % (time.time() - time_ini)
+    #print(str_out)
     return (output_img);
 #--------------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------------
 #internal function
 def aux_remove_area(img, labels_areas, area_size_min):
-    ncols = img.shape[1]
-    nrows = img.shape[0]
+    time_ini = time.time()
+    result = img.copy()
     
-    result = img;
-    for i in range(0, nrows, 1):
-        for j in range(0, ncols, 1):
-            current_label = img[i][j];
-            if(labels_areas[current_label] < area_size_min):
-                result[i][j] = 0;
-    
+    for i in range(0, len(labels_areas)):
+        if(labels_areas[i] < area_size_min):
+            result[result == i] = 0
+            
+    #str_out = "(Giara Utils) aux_remove_area completed (Time Taken: %.2fs)" % (time.time() - time_ini)
+    #print(str_out)
     return result;
 #--------------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------------
 #Recieves an binary image (image) and an area size (area_size_min)
 #and returns a mask with only the interconnected areas that have more pixels than (area_size_min)
-def remove_interconnected_areas_below_given_size(idx, image, pixel_color, connection_type, area_size_min):
+def remove_interconnected_areas_below_given_size(image, pixel_color, area_size_min, connection_type=8):
     time_ini = time.time();
-        
     colors_accepted = ["black", "white"];
     
     if(pixel_color == colors_accepted[0]):
         entry_img = image;
     elif(pixel_color == colors_accepted[1]):
         entry_img = (255 - image);
-        entry_img = entry_img.astype(numpy.uint8)
-        print(entry_img.dtype)
-
+        entry_img = entry_img.astype(np.uint8)
         
     result_label_number, result_label_img = cv2.connectedComponents(entry_img, 8);
     labels_areas = count_all_labels_areas_on_an_image(result_label_img, result_label_number);
@@ -99,16 +92,16 @@ def remove_interconnected_areas_below_given_size(idx, image, pixel_color, connec
     if(pixel_color == colors_accepted[1]):
         output_image = (255 - output_image);
     
-    str_out = "(Giara Utils) remove_interconnected_areas_below_given_size completed (Time Taken: %.2fs)" % (time.time() - time_ini)
-    print(str_out)
-    return (output_image);
+    #str_out = "(Giara Utils) remove_interconnected_areas_below_given_size completed (Time Taken: %.2fs)" % (time.time() - time_ini)
+    #print(str_out)
+    return (output_image.astype(np.uint8));
 #--------------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------------
 #Receives a rgb iamge and returns a rgb image with the three channels being the GS channel
 def gs_to_rgb(image):
     time_ini = time.time()
-    new_image = numpy.zeros((image.shape[1], image.shape[0], 3), dtype=numpy.uint8)
+    new_image = np.zeros((image.shape[1], image.shape[0], 3), dtype=np.uint8)
     new_image[:,:,0] =  image[:,:]
     new_image[:,:,1] =  image[:,:]
     new_image[:,:,2] =  image[:,:]          
@@ -123,20 +116,27 @@ def gs_to_rgb(image):
 #Input 1 (image): int8 or uint8 2D matrix, is the image
 #Input 2 (label_to_count): int value, is the pixel tone or the label that will be accounted
 #Output (quantity_label): int value, the number of times that the label appears on the image
+def removed_specific_label_on_image(img, label_to_remove):
+    img[img == label_to_remove] = 0
+    return img
+    
+#--------------------------------------------------------------------------------------
+    
+#--------------------------------------------------------------------------------------
+#This functions counts the number of times than an especific label(pixel tone) appears in an image
+#Input 1 (image): int8 or uint8 2D matrix, is the image
+#Input 2 (label_to_count): int value, is the pixel tone or the label that will be accounted
+#Output (quantity_label): int value, the number of times that the label appears on the image
 def count_specific_label_on_image(img, label_to_count):
     time_ini = time.time()
-    quantity_label = 0;
+    aux_val = 255
     
-    ncols = img.shape[1]
-    nrows = img.shape[0]
+    size_img = img.copy()
+    size_img[size_img != label_to_count] = aux_val
+    size_img[size_img == label_to_count] = 1
+    size_img[size_img == aux_val] = 0
+    quantity_label = size_img.sum()
     
-    for i in range(0, nrows, 1):
-        for j in range(0, ncols, 1):
-            if(img[i][j] == label_to_count):
-                quantity_label += 1;
-        
-    str_out = "(Giara Utils) count_specific_label_on_image completed (Time Taken: %.2f)" % (time.time() - time_ini)
-    print(str_out)
     return quantity_label;
     
 def count_specific_tone_on_image(image, label_to_count):
@@ -153,16 +153,13 @@ def count_specific_value_on_matrix(image, label_to_count):
 #output, the areas of each label present on the img
 def count_all_labels_areas_on_an_image(img, num_labels):
     time_ini = time.time()
-    ncols = img.shape[1]
-    nrows = img.shape[0]
+    output_areas = np.zeros((num_labels));
     
-    output_areas = numpy.zeros((num_labels+1));
-    for i in range(0, nrows, 1):
-        for j in range(0, ncols, 1):
-            output_areas[img[i][j]] += 1;
-            
-    str_out = "(Giara Utils) count_all_labels_areas_on_an_image completed (Time Taken: %.2fs)" % (time.time() - time_ini)
-    print(str_out)
+    for i in range(0, num_labels):
+        output_areas[i] = count_specific_label_on_image(img, i)
+    
+    #str_out = "(Giara Utils) count_all_labels_areas_on_an_image completed (Time Taken: %.2fs)" % (time.time() - time_ini)
+    #print(str_out)
     return output_areas;
 #--------------------------------------------------------------------------------------
 
@@ -173,6 +170,7 @@ def count_all_labels_areas_on_an_image(img, num_labels):
 #Input 3 (value_to_change): int value, is the pixel tone or the label that will replace the Input 2
 #Output: the input image with the Input 1 appearances replaced by Input 2
 def change_specific_label_on_image(img, label_to_change, value_to_change):
+    #to be vectorized
     time_ini = time.time()
     ncols = img.shape[1]
     nrows = img.shape[0]
@@ -197,9 +195,24 @@ def change_specific_label_on_image(img, label_to_change, value_to_change):
 #Input 4 (label2): integer, the reference value of img2
 #Output (num_intersections): integer, the number of times that the tw labels appear at the same position in both images 
 def count_intersections_of_two_labels_on_image(img1, img2, label1, label2):
-    temp_mat = (img1 == label1)
-    temp_mat = temp_mat[img2 == label2]
-    num_intersections = temp_mat.sum()
+
+    aux_unused_number = -1
+    temp_mat1 = img1.astype(np.int16)
+    temp_mat2 = img2.astype(np.int16)
+    
+    
+    temp_mat1[temp_mat1 != label1] = aux_unused_number
+    temp_mat1[temp_mat1 == label1] = 1
+    temp_mat1[temp_mat1 == aux_unused_number] = 0
+    
+    
+    temp_mat2[temp_mat2 != label2] = aux_unused_number
+    temp_mat2[temp_mat2 == label2] = 1
+    temp_mat2[temp_mat2 == aux_unused_number] = 0
+    
+    temp_mat1[temp_mat1 != temp_mat2] = 0
+    num_intersections = temp_mat1.sum()
+    
     return num_intersections;
 
 def count_intersections_of_two_tones_on_image(img1, img2, label1, label2):
@@ -222,7 +235,7 @@ def create_a_mask_for_specific_tone(img, tone):
     nrows = img.shape[0]
  
     result = img;
-    result = result.astype(numpy.uint8)
+    result = result.astype(np.uint8)
     for i in range(0, nrows, 1):
         for j in range(0, ncols, 1):
             if(img[i][j] == tone):
@@ -270,10 +283,10 @@ def get_mean_intensity_of_label_area(img, labeled_img, label_to_consider):
 
 #--------------------------------------------------------------------------------------
 def print_matrix_to_file(matrix_in, file_name):
-    mat = numpy.matrix(matrix_in);
+    mat = np.matrix(matrix_in);
     with open(file_name,'wb') as f:
         for line in mat:
-            numpy.savetxt(f, line, fmt='%.2f');
+            np.savetxt(f, line, fmt='%.2f');
 #--------------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------------
@@ -282,16 +295,16 @@ def print_matrix_to_file(matrix_in, file_name):
 #Input 1: the operation to be performed (["times", "plus", "minus", "or", "and", "rdivide"])
 #Input 2 and 3: The two matrices
 #Output: The result of the operation
-def bsxfun(function, matrix1, matrix2):
+def bsxfun(function, matrix1, matrix2): #has to be vectorized
     time_ini = time.time()
     
     allowed_functions = ["times", "plus", "minus", "or", "and", "rdivide"]
     
     #For Two Dimensional array inputs    
     if(len(matrix1.shape) == 2):
-        output_mat = numpy.zeros((matrix1.shape[0], matrix1.shape[1]), dtype=numpy.uint8)
+        output_mat = np.zeros((matrix1.shape[0], matrix1.shape[1]), dtype=np.uint8)
         #Performing the operation for two arrays
-        if(not numpy.isscalar(matrix2)):
+        if(not np.isscalar(matrix2)):
             if((matrix1.shape != matrix2.shape)):
                 print("ERROR (bsxfun function): The two arrays must have the same dimensionality")
                 print("Array 1 infos:")
@@ -318,12 +331,12 @@ def bsxfun(function, matrix1, matrix2):
             elif(function == allowed_functions[3]): #or
                 for i in range(matrix1.shape[1]):
                     for j in range(matrix1.shape[0]):
-                        output_mat[i][j] = numpy.uint8(bool(matrix1[i][j]) or bool(matrix2[i][j]))
+                        output_mat[i][j] = np.uint8(bool(matrix1[i][j]) or bool(matrix2[i][j]))
                         
             elif(function == allowed_functions[4]): #and
                 for i in range(matrix1.shape[1]):
                     for j in range(matrix2.shape[0]):
-                        output_mat[i][j] = numpy.uint8(bool(matrix1[i][j]) and bool(matrix2[i][j]))
+                        output_mat[i][j] = np.uint8(bool(matrix1[i][j]) and bool(matrix2[i][j]))
                         
             elif(function == allowed_functions[5]): #rdivide
                 for i in range(matrix1.shape[1]):
@@ -352,12 +365,12 @@ def bsxfun(function, matrix1, matrix2):
             elif(function == allowed_functions[3]): #or
                 for i in range(matrix1.shape[1]):
                     for j in range(matrix1.shape[0]):
-                        output_mat[i][j] = numpy.uint8(bool(matrix1[i][j]) or bool(scalar_var))
+                        output_mat[i][j] = np.uint8(bool(matrix1[i][j]) or bool(scalar_var))
                         
             elif(function == allowed_functions[4]): #and
                 for i in range(matrix1.shape[1]):
                     for j in range(matrix1.shape[0]):
-                        output_mat[i][j] = numpy.uint8(bool(matrix1[i][j]) and bool(scalar_var))
+                        output_mat[i][j] = np.uint8(bool(matrix1[i][j]) and bool(scalar_var))
                         
             elif(function == allowed_functions[5]): #rdivide
                 for i in range(matrix1.shape[1]):
@@ -366,9 +379,9 @@ def bsxfun(function, matrix1, matrix2):
                         
     #If matrix1 is a 3D matrix
     elif(len(matrix1.shape) == 3):
-        output_mat = numpy.zeros((matrix1.shape[0], matrix1.shape[1], matrix1.shape[2]), dtype=numpy.uint8)
+        output_mat = np.zeros((matrix1.shape[0], matrix1.shape[1], matrix1.shape[2]), dtype=np.uint8)
         #Performing the operation for two arrays
-        if(not numpy.isscalar(matrix2)):
+        if(not np.isscalar(matrix2)):
             if((matrix1.shape != matrix2.shape)):
                 print("ERROR (bsxfun function): The two arrays must have the same dimensionality")
                 print("Array 1 infos:")
@@ -399,13 +412,13 @@ def bsxfun(function, matrix1, matrix2):
                 for i in range(matrix1.shape[1]):
                     for j in range(matrix1.shape[0]):
                         for k in range(matrix1.shape[2]):
-                            output_mat[i][j][k] = numpy.uint8(bool(matrix1[i][j][k]) or bool(matrix2[i][j][k]))
+                            output_mat[i][j][k] = np.uint8(bool(matrix1[i][j][k]) or bool(matrix2[i][j][k]))
                         
             elif(function == allowed_functions[4]): #and
                 for i in range(matrix1.shape[1]):
                     for j in range(matrix1.shape[0]):
                         for k in range(matrix1.shape[2]):
-                            output_mat[i][j][k] = numpy.uint8(bool(matrix1[i][j][k]) and bool(matrix2[i][j][k]))
+                            output_mat[i][j][k] = np.uint8(bool(matrix1[i][j][k]) and bool(matrix2[i][j][k]))
                         
             elif(function == allowed_functions[5]): #rdivide
                 for i in range(matrix1.shape[1]):
@@ -439,13 +452,13 @@ def bsxfun(function, matrix1, matrix2):
                 for i in range(matrix1.shape[1]):
                     for j in range(matrix1.shape[0]):
                         for k in range(matrix1.shape[2]):
-                            output_mat[i][j][k] = numpy.uint8(bool(matrix1[i][j][k]) or bool(scalar_var))
+                            output_mat[i][j][k] = np.uint8(bool(matrix1[i][j][k]) or bool(scalar_var))
                         
             elif(function == allowed_functions[4]): #and
                 for i in range(matrix1.shape[1]):
                     for j in range(matrix1.shape[0]):
                         for k in range(matrix1.shape[2]):
-                            output_mat[i][j][k] = numpy.uint8(bool(matrix1[i][j][k]) and bool(scalar_var))
+                            output_mat[i][j][k] = np.uint8(bool(matrix1[i][j][k]) and bool(scalar_var))
                         
             elif(function == allowed_functions[5]): #rdivide
                 for i in range(matrix1.shape[1]):
@@ -469,7 +482,7 @@ def print_array_dimensions(array):
 
 #--------------------------------------------------------------------------------------
 def convert_uint16_to_uint8(img):
-    converted_img = numpy.zeros(img.shape, dtype=numpy.uint8)
+    converted_img = np.zeros(img.shape, dtype=np.uint8)
     
     if(len(img.shape) == 2):
         for i in range(img.shape[1]):
@@ -488,10 +501,10 @@ def rosin_threshold_v1(histogram_to_process):
 
     #Step 01: Finding the hitogram peak
     max_value = max(histogram_to_process)
-    max_hist_peak_index = numpy.argmax(histogram_to_process)
+    max_hist_peak_index = np.argmax(histogram_to_process)
 
     #Step 02: Finding the first empty bin after the last filled bin
-    vet_of_non_zero_index = numpy.nonzero(histogram_to_process)
+    vet_of_non_zero_index = np.nonzero(histogram_to_process)
     vet_of_non_zero_index = vet_of_non_zero_index[0]
     if(vet_of_non_zero_index[-1] == (len(histogram_to_process) - 1)):
         first_empty_bin_index = len(histogram_to_process - 1)
@@ -543,7 +556,7 @@ def use_labels_to_change_mask_intensity(img, labels, label_to_change, new_intens
     nrows = labels.shape[0]
     ncols = labels.shape[1]
     mask_output = img;
-    mask_output = mask_output.astype(numpy.uint8)
+    mask_output = mask_output.astype(np.uint8)
     
     for i in range(nrows):
         for j in range (ncols):
